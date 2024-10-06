@@ -80,7 +80,7 @@ Another requirement is to install the drivers that will work with PyUSB/libusb1.
 
 Upload the STM32, and via the Live Expressions tab in the debugger view, set `TxCnt` to 10000 (we will send 10MB of data) and the `startCommunication` variable to 1. As the Python script is not yet running, the USB data won't be flowing. Then, run the `STM32_USB_read.py` script. After a while, 10MB of data should be received, and the transfer speed will also be printed.
 
-It is necessary to check the data integrity by running the `USB_data_check.py` script.
+It is also nice to check the data integrity by running the `USB_data_check.py` script.
 
 This is a basic program for achieving what I would call a decent speed for the STM32 USB FS device. If anyone has any ideas on how to speed up the transfer, any tips and tricks are most welcome.
 
