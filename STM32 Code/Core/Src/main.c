@@ -22,7 +22,7 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-
+#include "usbd_msc.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -43,6 +43,12 @@
 UART_HandleTypeDef hlpuart1;
 
 /* USER CODE BEGIN PV */
+
+volatile char startCommunication = 0; //Initiates a start of transfer
+volatile int  txCnt = 0; // Number of transmitted kB (1024 bytes)
+volatile char flagBulkInTx = 0; // Flag for indicating end of transfer
+uint8_t usbData[1024];
+extern USBD_HandleTypeDef hUsbDeviceFS;
 
 /* USER CODE END PV */
 
@@ -97,6 +103,28 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)
   {
+	  if(startCommunication){
+		  uint32_t sample = 0;
+		  startCommunication = 0;
+
+		  while(txCnt){
+			  txCnt--;
+
+			  for(int i = 0; i < sizeof(usbData); i = i + 4)
+			  {
+				  //Parsing 32bit "sample" into 8bit chunks
+				  usbData[i] = sample >> 24 & 0xFF;
+				  usbData[i+1] = sample >> 16 & 0xFF;
+				  usbData[i+2] = sample >> 8 & 0xFF;
+				  usbData[i+3] = sample & 0xFF;
+				  sample++;
+			  }
+
+			  flagBulkInTx = 0;
+			  USBD_LL_Transmit(&hUsbDeviceFS, MSC_EPIN_ADDR, usbData, 1024);
+			  while (!flagBulkInTx);
+		  }
+	  }
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */

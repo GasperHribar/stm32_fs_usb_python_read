@@ -36,7 +36,7 @@
 
 /* Private variables ---------------------------------------------------------*/
 /* USER CODE BEGIN PV */
-
+extern volatile char flagBulkInTx;
 /* USER CODE END PV */
 
 PCD_HandleTypeDef hpcd_USB_FS;
@@ -177,6 +177,11 @@ void HAL_PCD_DataInStageCallback(PCD_HandleTypeDef *hpcd, uint8_t epnum)
 #endif /* USE_HAL_PCD_REGISTER_CALLBACKS */
 {
   /* USER CODE BEGIN HAL_PCD_DataInStageCallback_PreTreatment */
+
+  // Mask out the direction bit (0x80) from MSC_EPIN_ADDR for proper comparison
+  if ((MSC_EPIN_ADDR & 0x7F) == epnum){  // Compare only the endpoint number
+	  flagBulkInTx = 1;  // Set the flag if the correct IN endpoint is complete
+  }
 
   /* USER CODE END HAL_PCD_DataInStageCallback_PreTreatment */
   USBD_LL_DataInStage((USBD_HandleTypeDef*)hpcd->pData, epnum, hpcd->IN_ep[epnum].xfer_buff);
